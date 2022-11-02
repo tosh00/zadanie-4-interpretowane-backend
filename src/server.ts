@@ -4,6 +4,10 @@ import mongoose from "mongoose";
 import { config } from "./config/config";
 import Logging from "./library/Logging";
 
+import categoryRoutes from './routes/Category'
+import productRoutes from './routes/Product'
+import orderRoutes from './routes/Order'
+
 const router = express();
 
 mongoose.connect(config.mongo.url).then(() => {
@@ -29,7 +33,7 @@ const StartServer = () => {
     router.use(express.urlencoded({ extended: true }));
     router.use(express.json());
 
-    /** Rules of our API */
+    // Rules of our API 
     router.use((req, res, next) => {
         res.header('Access-Control-Allow-Origin', '*');
         res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -42,12 +46,20 @@ const StartServer = () => {
         next();
     });
 
+    // Routes
+
+    router.use('/category', categoryRoutes);
+    router.use('/product', productRoutes);
+    router.use('/order', orderRoutes);
+
+    // Health check
 
     router.get('/ping', (req, res, next) => {
         return res.status(200).json({ message: "pong" })
         
 
     })
+
 
     router.use((req, res, next) => {
         const error = new Error('not found');
@@ -60,23 +72,3 @@ const StartServer = () => {
         Logging.info(`Server is running on port: ${config.server.port}`)
     })
 }
-
-
-// const router = express();
-
-// //     router.use((req, res, next) => {
-// //         res.on('finish', () => {
-// //             Logging.info(`Incomming -> Url: [${req.url}] - Status: [${req.statusCode}] `)
-// //             next();
-// //         })
-// //     });
-
-//     router.get('/', (req, res, next) => {
-//         return res.status(200).json({ message: "pong" })
-        
-
-//     })
-
-//     http.createServer(router).listen(config.server.port, () => {
-//         Logging.info(`Server is running on port: ${config.server.port}`)
-//     })
