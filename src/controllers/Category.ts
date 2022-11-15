@@ -25,7 +25,7 @@ const readCategory = (req: Request, res: Response, next: NextFunction) => {
 const readAll = (req: Request, res: Response, next: NextFunction) => {
 
     return Category.find()
-        .then((categories) => res.status(200).json({ categories }))
+        .then((category) => res.status(200).json({ category }))
         .catch((error) => { res.status(500).json({ error }) })
 };
 

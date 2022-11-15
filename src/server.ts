@@ -10,7 +10,11 @@ import orderRoutes from './routes/Order'
 
 const router = express();
 
+
+
 mongoose.connect(config.mongo.url).then(() => {
+console.log("mongodb://admin:1234@localhost:27017/");
+
     Logging.info("Connected")
     StartServer();
 }).catch((e) => {
@@ -55,9 +59,7 @@ const StartServer = () => {
     // Health check
 
     router.get('/ping', (req, res, next) => {
-        return res.status(200).json({ message: "pong" })
-        
-
+        return res.status(200).json({ message: "poong" })
     })
 
 

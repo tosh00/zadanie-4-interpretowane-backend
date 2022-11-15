@@ -22,6 +22,7 @@ const readProduct = (req: Request, res: Response, next: NextFunction) => {
     const productId = req.params.productId;
 
     return Product.findById(productId)
+        .populate('category')
         .then((product) => (product ? res.status(200).json({ product }) : res.status(404).json({ message: 'Product not found' })))
         .catch((error) => { res.status(500).json({ error }) })
 };
@@ -29,8 +30,9 @@ const readProduct = (req: Request, res: Response, next: NextFunction) => {
 const readAll = (req: Request, res: Response, next: NextFunction) => {
 
     return Product.find()
+        .populate('category')
         .then((product) => res.status(200).json({ product }))
-        .catch((error) => { res.status(500).json({ error }) })
+        .catch((error) => { res.status(500).json({ e: error}) })
 };
 
 const updateProduct = (req: Request, res: Response, next: NextFunction) => {
