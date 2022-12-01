@@ -96,3 +96,5 @@ db.orders.insertMany([
         date: "2021-03-01"
     }
 ])
+
+db.users.insert({username: "admin", email:"admin@admin.org", hashedPassword: "$2b$10$3TRuXIWi8S5zg7uFllTC2uJKTEmhU7Y6rxo4P3HYC5jAUO8OHc74e", role: 'admin'})

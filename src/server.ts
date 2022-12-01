@@ -2,19 +2,18 @@ import express from "express";
 import http from 'http';
 import mongoose from "mongoose";
 import { config } from "./config/config";
+import bcrypt from 'bcrypt';
 import Logging from "./library/Logging";
-
 import categoryRoutes from './routes/Category'
 import productRoutes from './routes/Product'
 import orderRoutes from './routes/Order'
+import userRoutes from './routes/User'
 
 const router = express();
 
 
 
 mongoose.connect(config.mongo.url).then(() => {
-console.log("mongodb://admin:1234@localhost:27017/");
-
     Logging.info("Connected")
     StartServer();
 }).catch((e) => {
@@ -55,13 +54,13 @@ const StartServer = () => {
     router.use('/category', categoryRoutes);
     router.use('/product', productRoutes);
     router.use('/order', orderRoutes);
+    router.use('/user', userRoutes);
 
     // Health check
 
     router.get('/ping', (req, res, next) => {
         return res.status(200).json({ message: "poong" })
     })
-
 
     router.use((req, res, next) => {
         const error = new Error('not found');

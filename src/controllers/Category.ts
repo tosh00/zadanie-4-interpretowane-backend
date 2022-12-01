@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import Category from "../model/Category";
+import Authentication from '../library/Authentication'
 
 const createCategory = (req: Request, res: Response, next: NextFunction) => {
+
     const { name } = req.body;
 
     const category = new Category({
