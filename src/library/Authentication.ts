@@ -2,7 +2,10 @@ import jwt from 'jsonwebtoken';
 import {VerifyErrors} from 'jsonwebtoken';
 import * as dotenv from "dotenv";
 import {Express, Request, Response, NextFunction} from 'express';
+import { IUser } from '../model/User';
 dotenv.config();
+
+
 
 const userAuthenticate = (req: Request, res: Response, next: NextFunction) =>{
   const authHeader = req.headers['authorization'];
@@ -21,7 +24,7 @@ const userAuthenticate = (req: Request, res: Response, next: NextFunction) =>{
 
   jwt.verify(token, accessTokenSecret, (err: VerifyErrors | null, user: any)=>{
     if(err) return res.sendStatus(403);
-    // req.user = user;
+    req.body.user = user;
     next()
   })
 
@@ -50,7 +53,7 @@ const adminAuthenticate = (req: Request, res: Response, next: NextFunction): voi
   jwt.verify(token, accessTokenSecret, (err: VerifyErrors | null, user: any)=>{
     if(err) return res.sendStatus(403);
     if(user.role != 'admin') return res.sendStatus(403);
-    // req.user = user;
+    req.body.user = user;
     next()
   })
 
