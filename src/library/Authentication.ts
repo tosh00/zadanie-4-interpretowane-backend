@@ -22,6 +22,7 @@ const userAuthenticate = (req: Request, res: Response, next: NextFunction) =>{
   jwt.verify(token, accessTokenSecret, (err: VerifyErrors | null, user: any)=>{
     if(err) return res.sendStatus(403);
     // req.user = user;
+    req.body.user = user;
     next()
   })
 

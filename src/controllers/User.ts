@@ -54,6 +54,10 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
 
 };
 
+const getLoggedUser = async (req: Request, res: Response, next: NextFunction) => {
+  return req.body.user ? res.status(200).json(req.body.user) : res.status(500).json({error: "Server couldn't resolve this request"});
+}
+
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   const { username, email, password, phone } = req.body;
 
@@ -156,4 +160,4 @@ const deleteUser = (req: Request, res: Response, next: NextFunction) => {
     });
 };
 
-export default { createUser, readUser, readAll, updateUser, deleteUser, loginUser};
+export default { createUser, readUser, readAll, updateUser, deleteUser, loginUser, getLoggedUser};
