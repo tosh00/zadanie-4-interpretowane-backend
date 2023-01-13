@@ -36,7 +36,6 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
             "Something went wrong",
         });
       }
-      console.log({...user});
       
       const accessToken = jwt.sign(user, accessTokenSecret);
       
@@ -55,7 +54,14 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getLoggedUser = async (req: Request, res: Response, next: NextFunction) => {
-  return req.body.user ? res.status(200).json(req.body.user) : res.status(500).json({error: "Server couldn't resolve this request"});
+  console.log(!!req.body.user);
+  
+  if(!req.body.user){
+    return res.status(500).json({error: "Server couldn't resolve this request."});
+  }
+  const user = await User.findOne({username: req.body.user.username}).select("-_id").lean();
+
+  return res.status(200).json({user});
 }
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -69,7 +75,6 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})"
   );
   if (!passwordTest.test(password)) {
-    console.log(password);
 
     return res
       .status(400)
@@ -79,7 +84,6 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
       });
   }
 
-  console.log(password);
 
   let hashedPassword: string = await bcrypt.hash(password, 10);
 

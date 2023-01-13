@@ -49,9 +49,12 @@ const adminAuthenticate = (req: Request, res: Response, next: NextFunction): voi
   }
 
   jwt.verify(token, accessTokenSecret, (err: VerifyErrors | null, user: any)=>{
+    console.log(user);
+    
     if(err) return res.sendStatus(403);
     if(user.role != 'admin') return res.sendStatus(403);
     // req.user = user;
+    req.body.user = user;
     next()
   })
 
