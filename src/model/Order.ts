@@ -1,15 +1,14 @@
 import mongoose, { Document, Schema } from "mongoose";
+import Product, { IProduct } from "./Product";
 
 export interface IOrder {
     products: [{
-        product: string,
+        product: IProduct,
         ammount: number
     }];
     status: string;
-    name: string;
-    email: string;
-    phone: string;
     date: Date;
+    userId: string;
 }
 
 export interface IOrderModel extends IOrder, Document { };
@@ -17,14 +16,18 @@ export interface IOrderModel extends IOrder, Document { };
 const OrderSchema: Schema = new Schema(
     {
         products: [{
-            product: { type: Schema.Types.ObjectId, required: true, ref: 'Product' },
+            product: { 
+                name: {type: String},
+                description: {type: String},
+                price: {type: Number},
+                weight: {type: Number},
+                category: {type: Schema.Types.ObjectId, required: true, ref: 'Category'}
+            },
             ammount: { type: Number, required: true }
         }],
         status: { type: String, enum: ['NIEZATWIERDZONE', 'ZATWIERDZONE', 'ANULOWANE', 'ZREALIZOWANE'], required: true },
-        email: { type: String, required: true },
-        name: { type: String, required: false },
-        phone: { type: String, required: false },
         date: { type: Date, required: false },
+        userId: {type: Schema.Types.ObjectId, required: true, ref: 'User'}
 
     },
     {

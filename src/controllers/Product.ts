@@ -1,65 +1,74 @@
-import mongoose from 'mongoose';
-import { NextFunction, Request, Response } from 'express';
-import Product from '../model/Product';
+import mongoose from "mongoose";
+import Logger from "../library/Logging";
+import Product from "../model/Product";
 
-const createProduct = (req: Request, res: Response, next: NextFunction) => {
-    const { name, description, price, weight, category } = req.body;
+const createProduct = async (productParams: {
+  name: string;
+  description: string;
+  price: number;
+  weight: number;
+  category: string;
+}) => {
+  const { name, description, price, weight, category } = productParams;
 
-    const product = new Product({
-        _id: new mongoose.Types.ObjectId(),
-        name,
-        description,
-        price,
-        weight,
-        category
+  const product = new Product({
+    _id: new mongoose.Types.ObjectId(),
+    name,
+    description,
+    price,
+    weight,
+    category,
+  });
+
+  return await product.save();
+};
+const readProduct = async (productId: string) => {
+  const p = await Product.findById(productId)
+    .populate("category")
+    .catch((e) => {
+      Logger.error(`Can't get product from database: ${e}`);
+    });
+  return p?.toObject();
+};
+
+const readAll = async () => {
+  return await Product.find()
+    .populate("category")
+    .catch((e) => {
+      Logger.error(`Ups something went wrong: ${e}`);
+    });
+};
+
+const updateProduct = async (
+  productId: string,
+  toUpdate: {
+    name?: string;
+    description?: string;
+    price?: number;
+    weight?: number;
+    category?: string;
+  }
+) => {
+  const p = await Product.findById(productId);
+  if (!p) return;
+  p.set(toUpdate);
+  const updated = await p.save();
+  return updated;
+};
+const deleteProduct = async (productId: string) => {
+  await Product.findByIdAndDelete(productId)
+    .then(() => {
+      Logger.info(`Object "${productId}" has been deleted succesfuly.`);
     })
-
-    return product.save()
-        .then((product) => { res.status(201).json({ product }) })
-        .catch((error) => { res.status(500).json({ error }) })
-};
-const readProduct = (req: Request, res: Response, next: NextFunction) => {
-    const productId = req.params.productId;
-
-    return Product.findById(productId)
-        .populate('category')
-        .then((product) => (product ? res.status(200).json({ product }) : res.status(404).json({ message: 'Product not found' })))
-        .catch((error) => { res.status(500).json({ error }) })
+    .catch((error) => {
+      Logger.error(`An error occured while deleting object ${error}`);
+    });
 };
 
-const readAll = (req: Request, res: Response, next: NextFunction) => {
-
-    return Product.find()
-        .populate('category')
-        .then((product) => res.status(200).json({ product }))
-        .catch((error) => { res.status(500).json({ e: error}) })
+export default {
+  createProduct,
+  readProduct,
+  readAll,
+  updateProduct,
+  deleteProduct,
 };
-
-const updateProduct = (req: Request, res: Response, next: NextFunction) => {
-    const productId = req.params.productId;
-
-    return Product.findById(productId)
-        .then((product) => {
-            if (product) {
-                product.set(req.body)
-                return product.save()
-                    .then((product) => { res.status(201).json({ product }) })
-                    .catch((error) => { res.status(500).json({ error }) })
-            }
-            else {
-                res.status(404).json({ message: 'Product not found' })
-            }
-        })
-        .catch((error) => { res.status(500).json({ error }) })
-
-};
-const deleteProduct = (req: Request, res: Response, next: NextFunction) => {
-    const productId = req.params.productId;
-
-    Product.findByIdAndDelete(productId)
-    .then((product) => (product ? res.status(201).json({ message: 'deleted' }) : res.status(404)
-    .json({ message: 'Product not found' })))
-    .catch((error) => { res.status(500).json({ error }) })
-};
-
-export default {createProduct, readProduct, readAll, updateProduct, deleteProduct}

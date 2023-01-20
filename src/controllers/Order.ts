@@ -1,66 +1,68 @@
-import mongoose from 'mongoose';
-import { NextFunction, Request, Response } from 'express';
-import Order from '../model/Order';
+import mongoose from "mongoose";
+import Order from "../model/Order";
+import { IProduct } from "../model/Product";
+import Logger from "../library/Logging";
 
-const createOrder = (req: Request, res: Response, next: NextFunction) => {
-    const { products, name, email, phone, status = 'NIEZATWIERDZONE', date = new Date().toJSON() } = req.body;
+interface CreateOrderParams {
+  products: {product: IProduct, ammount: number}[];
+  userId: string;
+  status?: string;
+}
+interface UpdateOrderParams {
+  products?: {product: IProduct, ammount: number}[];
+  userId?: string;
+  status?: string;
+}
+const createOrder = async (orderParams: CreateOrderParams) => {
 
-    const order = new Order({
-        _id: new mongoose.Types.ObjectId(),
-        date,
-        name,
-        email,
-        phone,
-        products,
-        status
+  const p = 
+  {
+    _id: new mongoose.Types.ObjectId(),
+    status: "NIEZATWIERDZONE",
+    date: new Date().toJSON(),
+    ...orderParams,
+  }
+  const order = new Order(p);
+  
+  return await order
+    .save()
+    .then(() => {
+      Logger.info(`Order created successfuly`);
+      return order;
     })
-
-    return order.save()
-        .then((order) => { res.status(201).json({ order }) })
-        .catch((error) => { res.status(500).json({ error }) })
+    .catch((e) => {
+      Logger.error(`Error occured while creating order`);
+    });
 };
-const readOrder = (req: Request, res: Response, next: NextFunction) => {
-    const orderId = req.params.orderId;
+const readOrder = async (orderId: string) => {
+  const order = await Order.findById(orderId);
 
-    return Order.findById(orderId)
-        .populate({ path: 'products' })
-        .then((order) => (order ? res.status(200).json({ order }) : res.status(404).json({ message: 'Order not found' })))
-        .catch((error) => { res.status(500).json({ error }) })
+  return order;
 };
 
-const readAll = (req: Request, res: Response, next: NextFunction) => {
-
-    return Order.find()
-        .populate({ path: 'products.product', populate: { path: 'category' } })
-        .then((order) => res.status(200).json({ order }))
-        .catch((error) => { res.status(500).json({ error }) })
+const readAll = async () => {
+  return await Order.find()
+    .catch((e) => {
+      Logger.error(`Ups something went wrong: ${e}`);
+    });
 };
 
-const updateOrder = (req: Request, res: Response, next: NextFunction) => {
-    const orderId = req.params.orderId;
-
-    return Order.findById(orderId)
-        .then((order) => {
-            if (order) {
-                order.set(req.body)
-                return order.save()
-                    .then((order) => { res.status(201).json({ order }) })
-                    .catch((error) => { res.status(500).json({ error }) })
-            }
-            else {
-                res.status(404).json({ message: 'Order not found' })
-            }
-        })
-        .catch((error) => { res.status(500).json({ error }) })
-
-};
-const deleteOrder = (req: Request, res: Response, next: NextFunction) => {
-    const orderId = req.params.orderId;
-
-    Order.findByIdAndDelete(orderId)
-        .then((order) => (order ? res.status(201).json({ message: 'deleted' }) : res.status(404)
-            .json({ message: 'Order not found' })))
-        .catch((error) => { res.status(500).json({ error }) })
+const updateOrder = async (orderId: string, toUpdate: UpdateOrderParams) => {
+  const o =  await Order.findById(orderId)
+  if(!o) return;
+  o.set(toUpdate);
+  const updated = await o.save()
+  return updated;
 };
 
-export default { createOrder, readOrder, readAll, updateOrder, deleteOrder }
+const deleteOrder = async (orderId: string) => {
+  await Order.findByIdAndDelete(orderId)
+    .then(() => {
+      Logger.info(`Object "${orderId}" has been deleted succesfuly.`);
+    })
+    .catch((error) => {
+      Logger.error(`An error occured while deleting object ${error}`);
+    });
+};
+
+export default { createOrder, readOrder, readAll, updateOrder, deleteOrder };

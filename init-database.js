@@ -60,41 +60,62 @@ db.products.insertMany([
     }
 ])
 
+db.users.insert({username: "Adam", email:"adam@sklep.org", phone: "+48 236 618 997"})
+
+
 db.orders.insertMany([
     {
         products: [
             {
-                product: db.products.findOne({name: 'Matrix'})?._id,
+                product:     {
+                    name: "Zemsta faraona",
+                    description: "Średnio śmieszne ale za to tanie",
+                    price: 3,
+                    weight: .4,
+                    category: moviesID
+                },
                 ammount: 10
             },
             {
-                product: db.products.findOne({name: 'Potop'})?._id,
+                product:     {
+                    name: "Doom",
+                    description: "Strzelanie do diabłów nigdy się nie nudzi",
+                    price: 10,
+                    weight: .1,
+                    category: gamesID
+                },
                 ammount: 3
             }
         ],
         status: "ZATWIERDZONE",
-        email: "m.nowicki@wp.pl",
-        name: "Mariusz Nowicki",
-        phone: "+48 333 777 111",
+        user: db.users.findOne({username: "Adam"})?._id,
         date: "2022-11-25"
     },
     {
         products: [
             {
-                product: db.products.findOne({name: 'Doom'})?._id,
+                product:     {
+                    name: "Rok 1984",
+                    description: "Dystopijna opowieść o urzędniku",
+                    price: 40,
+                    weight: 2,
+                    category: booksID
+                },
                 ammount: 10
             },
             {
-                product: db.products.findOne({name: 'Tomb Raider'})?._id,
+                product:     {
+                    name: "Potop",
+                    description: "Klasyka polskiej literatury",
+                    price: 24,
+                    weight: 3,
+                    category: booksID
+                },
                 ammount: 3
             }
         ],
         status: "ZREALIZOWANE",
-        email: "a.malysz@gmail.com",
-        name: "Adam Małysz",
-        phone: "+48 125 841 055",
+        user: db.users.findOne({username: "Adam"})?._id,
         date: "2021-03-01"
     }
 ])
-
-db.users.insert({username: "admin", email:"admin@admin.org", hashedPassword: "$2b$10$3TRuXIWi8S5zg7uFllTC2uJKTEmhU7Y6rxo4P3HYC5jAUO8OHc74e", role: 'admin'})

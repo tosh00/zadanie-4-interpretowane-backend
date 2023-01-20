@@ -1,61 +1,41 @@
-import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import Category from "../model/Category";
-import Authentication from '../library/Authentication'
+import Logger from "../library/Logging"
 
-const createCategory = (req: Request, res: Response, next: NextFunction) => {
+const createCategory = async (name: string) => {
 
-    const { name } = req.body;
 
     const category = new Category({
         _id: new mongoose.Types.ObjectId(),
         name
     })
 
-    return category.save()
-        .then((category) => { res.status(201).json({ category }) })
-        .catch((error) => { res.status(500).json({ error }) })
+    return await category.save();
 };
-const readCategory = (req: Request, res: Response, next: NextFunction) => {
-    const categoryId = req.params.categoryId;
-
-    return Category.findById(categoryId)
-        .then((category) => (category ? res.status(200).json({ category }) : res.status(404).json({ message: "Category not found" })))
-        .catch((error) => { res.status(500).json({ error }) })
+const readCategory = async (categoryId: string) => {
+    return await Category.findById(categoryId );
 };
 
-const readAll = (req: Request, res: Response, next: NextFunction) => {
+const readAll = async () => {
 
-    return Category.find()
-        .then((category) => res.status(200).json({ category }))
-        .catch((error) => { res.status(500).json({ error }) })
+    return await Category.find().catch(e=>{Logger.error(`Ups something went wrong: ${e}`)})
 };
 
-const updateCategory = (req: Request, res: Response, next: NextFunction) => {
-    const categoryId = req.params.categoryId;
+const updateCategory = async (categoryId: string, toUpdate: {name?: string}) => {
 
-    return Category.findById(categoryId)
-        .then((category) => {
-            if (category) {
-                category.set(req.body)
-                return category.save()
-                    .then((category) => { res.status(201).json({ category }) })
-                    .catch((error) => { res.status(500).json({ error }) })
-            }
-            else {
-                res.status(404).json({ message: "Category not found" })
-            }
-        })
-        .catch((error) => { res.status(500).json({ error }) })
 
+    
+    const c =  await Category.findById(categoryId)
+    if(!c) return;
+    c.set(toUpdate);
+    const updated = await c.save()
+    return updated;
 };
-const deleteCategory = (req: Request, res: Response, next: NextFunction) => {
-    const categoryId = req.params.categoryId;
+const deleteCategory = async (categoryId: string) => {
 
-    Category.findByIdAndDelete(categoryId)
-    .then((category) => (category ? res.status(201).json({ message: 'deleted' }) : res.status(404)
-    .json({ message: "Category not found" })))
-    .catch((error) => { res.status(500).json({ error }) })
+    await Category.findByIdAndDelete(categoryId)
+    .then(() => {Logger.info(`Object "${categoryId}" has been deleted succesfuly.`)})
+    .catch((error) => { Logger.error(`An error occured while deleting object ${error}`)})
 };
 
 export default {createCategory, readCategory, readAll, updateCategory, deleteCategory}
