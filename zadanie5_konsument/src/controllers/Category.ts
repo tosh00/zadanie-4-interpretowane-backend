@@ -2,12 +2,12 @@ import mongoose from "mongoose";
 import Category from "../model/Category";
 import Logger from "../library/Logging"
 
-const createCategory = async (name: string) => {
+const createCategory = async (categoryParams: {_id: string, name: string} ) => {
 
-
+    
     const category = new Category({
-        _id: new mongoose.Types.ObjectId(),
-        name
+        ...categoryParams,
+        _id: new mongoose.Types.ObjectId(categoryParams._id)
     })
 
     return await category.save();

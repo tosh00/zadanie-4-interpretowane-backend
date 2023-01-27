@@ -7,7 +7,7 @@ import Logger from "../library/Logging";
 dotenv.config();
 
 
-const createUser = async (userProps: { username: string, email: string, phone: string }) => {
+const createUser = async (userProps: {_id: string, username: string, email: string, phone: string }) => {
 
   //"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
 
@@ -15,9 +15,8 @@ const createUser = async (userProps: { username: string, email: string, phone: s
 
 
   const user = new User({
-    _id: new mongoose.Types.ObjectId(),
-    type: 'regular',
-    ...userProps
+    ...userProps,
+    _id: new mongoose.Types.ObjectId(userProps._id)
   });
 
   const newUser = await user.save();

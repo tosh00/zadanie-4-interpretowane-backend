@@ -3,21 +3,18 @@ import Logger from "../library/Logging";
 import Product from "../model/Product";
 
 const createProduct = async (productParams: {
+  _id: string;
   name: string;
   description: string;
   price: number;
   weight: number;
   category: string;
 }) => {
-  const { name, description, price, weight, category } = productParams;
+  // const { name, description, price, weight, category } = productParams;
 
   const product = new Product({
-    _id: new mongoose.Types.ObjectId(),
-    name,
-    description,
-    price,
-    weight,
-    category,
+    ...productParams,
+    _id: new mongoose.Types.ObjectId(productParams._id)
   });
 
   return await product.save();
